@@ -50,3 +50,6 @@ data
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,intellij,intellij+all,intellij+iml
 .DS_Store
 node_modules
+
+!src/data/
+!src/data/**/*
