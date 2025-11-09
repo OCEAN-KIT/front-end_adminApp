@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ACTIVITIES } from "@/data/activity"; // 경로 맞게 수정
+import { ACTIVITIES } from "@/data/activity";
 
 export default function DiveSubmitPage() {
   const { id } = useParams(); // e.g. ACT-250301-ULJ-01
