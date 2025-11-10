@@ -10,10 +10,14 @@ import { createSubmission } from "@/api/submissions";
 const DEBUG = true;
 const TEST_NO_ATTACH = false;
 
-// ── helpers ─────────────────────────────────────────────────────────────
+/* ── helpers ─────────────────────────────────────────────────────────── */
+
+/** S3 key → 공개 URL (화면 표시용). 서버 저장은 key만! */
 const keyToPublicUrl = (key) => {
-  const base = process.env.NEXT_PUBLIC_S3_PUBLIC_BASE;
-  return base ? `${base.replace(/\/+$/, "")}/${key.replace(/^\/+/, "")}` : key;
+  const base = process.env.NEXT_PUBLIC_S3_PUBLIC_BASE || "";
+  const cleanBase = base.replace(/\/+$/, "");
+  const cleanKey = String(key || "").replace(/^\/+/, "");
+  return cleanBase ? `${cleanBase}/${cleanKey}` : `/${cleanKey}`;
 };
 
 const n = (v, fb = 0) => {
@@ -57,7 +61,8 @@ function labelToActivityType(label) {
   }
 }
 
-// ── page ────────────────────────────────────────────────────────────────
+/* ── page ────────────────────────────────────────────────────────────── */
+
 export default function DiveSubmitSecondPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -70,6 +75,8 @@ export default function DiveSubmitSecondPage() {
   const [workType, setWorkType] = useState("모니터링");
   const [details, setDetails] = useState("");
   const [incidentText, setIncidentText] = useState("");
+
+  // 로컬에서 선택된 파일(이미지/비디오)
   const [attachments, setAttachments] = useState([]);
   const fileRef = useRef(null);
 
@@ -91,7 +98,7 @@ export default function DiveSubmitSecondPage() {
   const removeOne = (idx) =>
     setAttachments((prev) => prev.filter((_, i) => i !== idx));
 
-  // 임시 저장용 payload (콘솔 확인)
+  // 임시 저장용 payload (콘솔 확인 전용)
   const buildPayload = () => {
     const raw = sessionStorage.getItem(`diveDraft:${id}`);
     const d = raw ? JSON.parse(raw) : {};
@@ -109,12 +116,13 @@ export default function DiveSubmitSecondPage() {
       ? `${details}\n\n[환경이상/사고 보고]\n${incidentText}`
       : details;
 
+    // 드래프트에서는 URL 자리에 안내 문구
     const drafts =
       attachments.map((f) => ({
         fileName: f.name,
         mimeType: f.type,
         fileSize: n(f.size),
-        fileUrl: "(S3 업로드 후 채워짐)",
+        fileUrl: "(S3 업로드 후 채워짐)", // 서버 전송 전까지 placeholder
       })) ?? [];
 
     return {
@@ -158,17 +166,21 @@ export default function DiveSubmitSecondPage() {
       const d = raw ? JSON.parse(raw) : {};
       if (DEBUG) console.log("[submit] envDraft =", d);
 
-      // 1) 첨부 업로드
+      // 1) 첨부 업로드 (S3 presigned PUT)
+      //    ✅ 서버 저장용 object는 'fileUrl: key' 만 넣는다.
       let uploaded = [];
       if (!TEST_NO_ATTACH) {
         for (const f of attachments) {
           console.log("[upload] start", f.name, f.type, f.size);
-          const key = await uploadImage(f);
-          const url = keyToPublicUrl(key);
-          console.log("[upload] done =>", { key, url });
+          const key = await uploadImage(f); // ← 서버에서 받은 presigned URL로 PUT 후 key를 반환
+          // 화면에서 미리보기/확인은 필요할 때 keyToPublicUrl(key) 사용
+          if (DEBUG) {
+            const urlForPreview = keyToPublicUrl(key);
+            console.log("[upload] done =>", { key, urlForPreview });
+          }
           uploaded.push({
             fileName: f.name,
-            fileUrl: url,
+            fileUrl: key, // ✅ 서버에는 key만 저장 (절대URL 금지)
             mimeType: f.type,
             fileSize: n(f.size),
           });
@@ -225,7 +237,7 @@ export default function DiveSubmitSecondPage() {
           collectionAmount: 0,
           durationHours: 0,
         },
-        attachments: uploaded,
+        attachments: uploaded, // ✅ key 기반 첨부 목록
       };
 
       if (DEBUG) {
@@ -405,3 +417,11 @@ export default function DiveSubmitSecondPage() {
     </div>
   );
 }
+
+/* 
+NOTE:
+- 서버 저장: attachments[].fileUrl ← 반드시 'S3 key'만 저장
+- 화면 표시(상세/리스트 등): keyToPublicUrl(key)로 변환해서 <img src>에 사용
+- NEXT_PUBLIC_S3_PUBLIC_BASE 예:
+  https://my-bucket.s3.amazonaws.com  또는  https://cdn.example.com
+*/

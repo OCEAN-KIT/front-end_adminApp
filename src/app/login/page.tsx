@@ -44,16 +44,9 @@ export default function LoginPage() {
       }}
     >
       <main className="flex-1 px-5 py-8 flex flex-col justify-center">
-        <div className="mb-14 flex items-center justify-center gap-3">
-          <Image
-            src="/images/Ellipse2.png"
-            width={32}
-            height={32}
-            alt="brand-logo"
-            className="h-8 w-8 rounded-full shadow"
-          />
-          <div className="text-[28px] font-extrabold tracking-tight text-sky-500 ">
-            Ocean-Kit
+        <div className="mb-10 flex items-center justify-center gap-3">
+          <div className="text-[32px] font-extrabold text-blue-500 ">
+            Ocean Campus
           </div>
         </div>
 
@@ -120,57 +113,6 @@ export default function LoginPage() {
             로그인
           </button>
         </form>
-
-        {/* Social logins */}
-        <div className="mt-8 flex items-center justify-center gap-6">
-          {/* Google (동작) */}
-          <button
-            className="
-              flex h-12 w-12 items-center justify-center rounded-full
-              border border-gray-200 bg-white shadow-sm
-              hover:bg-gray-50 active:translate-y-[1px] transition
-            "
-            // 실제 구글 로그인 연동 시 onClick 연결
-            type="button"
-          >
-            <Image
-              src="https://www.svgrepo.com/show/355037/google.svg"
-              alt="Google"
-              width={24}
-              height={24}
-            />
-          </button>
-
-          {/* Naver (미구현/비활성) */}
-          <button
-            type="button"
-            aria-disabled
-            className="
-              flex h-12 w-12 items-center justify-center rounded-full
-              border border-gray-200 bg-white shadow-sm
-              opacity-50 cursor-not-allowed
-            "
-            title="Naver 로그인(준비중)"
-          >
-            {/* 로고 이미지는 추후 교체 */}
-            <span className="text-[15px] font-bold text-gray-400">N</span>
-          </button>
-
-          {/* Kakao (미구현/비활성) */}
-          <button
-            type="button"
-            aria-disabled
-            className="
-              flex h-12 w-12 items-center justify-center rounded-full
-              border border-gray-200 bg-white shadow-sm
-              opacity-50 cursor-not-allowed
-            "
-            title="Kakao 로그인(준비중)"
-          >
-            {/* 로고 이미지는 추후 교체 */}
-            <span className="text-[15px] font-bold text-gray-400">K</span>
-          </button>
-        </div>
 
         {/* 회원가입 링크 */}
         <div className="mt-6 text-center">

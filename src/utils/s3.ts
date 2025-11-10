@@ -1,5 +1,9 @@
-// utils/s3.ts
-export function keyToPublicUrl(key: string) {
-  const base = process.env.NEXT_PUBLIC_S3_PUBLIC_BASE?.replace(/\/+$/, "");
-  return base ? `${base}/${key}` : key; // base가 없으면 일단 key를 그대로(테스트 시엔 attachments 비우는 게 안전)
-}
+// utils/s3.ts (아니면 기존 keyToPublicUrl 유지)
+export const keyToPublicUrl = (key: string) => {
+  const base = process.env.NEXT_PUBLIC_S3_PUBLIC_BASE || "";
+  if (!key) return "";
+  if (/^https?:\/\//i.test(key)) return key; // 이미 절대 URL이면 그대로
+  const cleanBase = base.replace(/\/+$/, "");
+  const cleanKey = key.replace(/^\/+/, "");
+  return cleanBase ? `${cleanBase}/${cleanKey}` : `/${cleanKey}`;
+};

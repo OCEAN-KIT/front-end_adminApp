@@ -1,7 +1,6 @@
 {
-  "/page": "app/page.js",
-  "/dive-management/page": "app/dive-management/page.js",
-  "/dive-management/second/[id]/page": "app/dive-management/second/[id]/page.js",
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
   "/home/page": "app/home/page.js",
-  "/dive-management/first/[id]/page": "app/dive-management/first/[id]/page.js"
+  "/submit-management/page": "app/submit-management/page.js",
+  "/login/page": "app/login/page.js"
 }
