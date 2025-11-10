@@ -3,9 +3,11 @@
 
 import MainHeader from "@/components/mian-header";
 import MainButton from "@/components/ui/main-button";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const { checking, isLoggedIn } = useAuthGuard({ mode: "gotoLogin" });
   const router = useRouter();
 
   return (

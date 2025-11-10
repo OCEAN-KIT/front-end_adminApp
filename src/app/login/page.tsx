@@ -1,8 +1,9 @@
+// app/(auth)/login/page.tsx  (경로는 너 프로젝트에 맞게)
 "use client";
 
 import { logIn } from "@/api/auth";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
-import Image from "next/image";
+import { ClipLoader } from "react-spinners"; // ⬅️ 추가
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ id: "", password: "" });
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [sending, setSending] = useState(false); // ⬅️ 추가
 
   if (checking || isLoggedIn) return null;
 
@@ -23,11 +25,14 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       setErrorMsg("");
+      setSending(true); // ⬅️ 추가
       await logIn(form.id, form.password);
       router.push("/home");
     } catch (err) {
       console.error("로그인 에러:", err);
       setErrorMsg("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setSending(false); // ⬅️ 추가
     }
   };
 
@@ -103,14 +108,21 @@ export default function LoginPage() {
           {/* 로그인 CTA */}
           <button
             type="submit"
+            disabled={sending}
             className="
               mt-2 h-12 w-full rounded-xl
               bg-[#3B82F6] text-white text-[15px] font-semibold
               shadow-md active:translate-y-[1px]
-              transition cursor-pointer
+              transition cursor-pointer disabled:opacity-60
+              flex items-center justify-center
             "
+            aria-busy={sending}
           >
-            로그인
+            {sending ? (
+              <ClipLoader size={20} color="#FFFFFF" speedMultiplier={0.9} />
+            ) : (
+              "로그인"
+            )}
           </button>
         </form>
 
